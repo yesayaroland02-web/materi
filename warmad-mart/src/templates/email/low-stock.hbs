@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peringatan Stok Menipis</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f6f9fc;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+    }
+    .email-wrapper {
+      width: 100%;
+      background-color: #f6f9fc;
+      padding: 30px 0;
+    }
+    .email-content {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .email-header {
+      background-color: #e53e3e;
+      color: #ffffff;
+      padding: 24px;
+      text-align: center;
+    }
+    .email-header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .email-body {
+      padding: 30px;
+    }
+    .email-body p {
+      margin-top: 0;
+      color: #4a5568;
+      line-height: 1.6;
+    }
+    .stock-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .stock-table th, .stock-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .stock-table th {
+      background-color: #f7fafc;
+      color: #2d3748;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .stock-table td {
+      color: #4a5568;
+      font-size: 14px;
+    }
+    .badge-stock {
+      background-color: #fed7d7;
+      color: #9b2c2c;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .email-footer {
+      background-color: #f7fafc;
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #a0aec0;
+    }
+    .btn-action {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #3182ce;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-content">
+      <!-- Header -->
+      <div class="email-header">
+        <h1>⚠️ Peringatan: Stok Produk Menipis</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="email-body">
+        <p>Halo Admin,</p>
+        <p>Sistem mendeteksi adanya beberapa produk yang memiliki sisa stok di bawah batas minimum (<= 5). Harap segera melakukan *restock* untuk produk-produk berikut:</p>
+
+        <!-- Tabel Produk -->
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Nama Produk</th>
+              <th style="text-align: center;">Sisa Stok</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each products}}
+            <tr>
+              <td><strong>{{this.title}}</strong></td>
+              <td style="text-align: center;">
+                <span class="badge-stock">{{this.stock}} pcs</span>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <p>Segera perbarui inventaris Anda melalui panel admin untuk menghindari kehabisan stok bagi pelanggan.</p>
+
+        <a href="{{adminUrl}}" class="btn-action" target="_blank">Buka Panel Admin</a>
+      </div>
+
+      <!-- Footer -->
+      <div class="email-footer">
+        <p>&copy; {{currentYear}} Sistem Otomasi Toko Anda. Email ini dikirim otomatis oleh sistem Cron Job.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+
+services:
+  backend:
+    build:
+      context: ./warmad-mart
+      dockerfile: Dockerfile
+    container_name: warmad-mart-be
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./warmad-mart/.env
+    volumes:
+      - mart_storage:/app/uploads
+    restart: unless-stopped
+    networks:
+      - warmad-network
+
+  frontend:
+    build:
+      context: ./warmad-mart-web
+      dockerfile: Dockerfile
+    container_name: warmad-mart-fe
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./warmad-mart-web/.env
+    environment:
+      WARMAD_INTERNAL_API_URL: http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - warmad-network
+
+networks:
+  warmad-network:
+    driver: bridge
+
+volumes:
+  mart_storage:

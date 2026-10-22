@@ -1,0 +1,214 @@
+{
+  "info": {
+    "_postman_id": "112e919c-8c6b-4934-9832-d5fdc77bb42f",
+    "name": "Warmad Yolo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15041566"
+  },
+  "item": [
+    {
+      "name": "Mengambil Semua Produk",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Menambahkan Produk",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\" : \"Minyak Goreng Bimoli\",\n    \"category\": \"Sembako\",\n    \"description\": \"lorem ipsum\",\n     \"stock\": 15,\n    \"price\": 45000\n   \n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mengambil Produk Tertentu",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/cedf2948-fa11-4634-b221-513eb31d7eaf",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            "cedf2948-fa11-4634-b221-513eb31d7eaf"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mengubah Produk Tertentu",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"stock\": 25\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/8b4901a8-ff4b-4623-b428-730f543800b9",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            "8b4901a8-ff4b-4623-b428-730f543800b9"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Menghapus Produk Tertentu (SOFT DELETE)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/999/soft-delete",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            "999",
+            "soft-delete"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mengembalikan Produk yang Terhapus (SOFT DELETE)",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/products/8b4901a8-ff4b-4623-b428-730f543800b9/restore",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "products",
+            "8b4901a8-ff4b-4623-b428-730f543800b9",
+            "restore"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Membuat Order",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"items\": [\n        {\n            \"productId\": \"8b4901a8-ff4b-4623-b428-730f543800b9\",\n            \"quantity\" : 5\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{WARMAD_YOLO_BASE_URL}}/api/orders/",
+          "host": [
+            "{{WARMAD_YOLO_BASE_URL}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "WARMAD_YOLO_BASE_URL",
+      "value": ""
+    }
+  ]
+}
