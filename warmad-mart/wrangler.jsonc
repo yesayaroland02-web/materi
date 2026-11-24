@@ -1,0 +1,20 @@
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "warmad-mart",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-04",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "8e2f1c2be50545668c15477dbc8c4c12"
+    }
+  ]
+}

@@ -1,26 +1,35 @@
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client.js";
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config();
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/index.js";
 
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL belum diatur di file .env");
+  throw new Error("DATABASE_URL belum dikonfigurasi di file .env");
 }
 
-// inisialisasi connection
-const pool = new Pool({
+const adapter = new PrismaPg({
   connectionString,
-  ssl: {
-    rejectUnauthorized: false,
-  },
 });
-const adapter = new PrismaPg(pool);
 
-// inisialisasi prisma client dengan driver adapter
-const prisma = new PrismaClient({ adapter });
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter,
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+// Named export untuk middleware Cloudflare
+export function withPrisma<T>(callback: () => T): T {
+  return callback();
+}
 
 export default prisma;
