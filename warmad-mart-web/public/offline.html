@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline - Warmad Mart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    .container {
+      padding: 24px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kamu Sedang Offline</h1>
+    <p>Periksa koneksi internet kamu, kemudian coba kembali.</p>
+    <button onclick="window.location.reload()">
+      Coba Lagi
+    </button>
+  </div>
+</body>
+</html>

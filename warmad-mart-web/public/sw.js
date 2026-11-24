@@ -1,10 +1,26 @@
 
-const CACHE_NAME = "warmad-mart-v4";
+const CACHE_NAME = "warmad-mart-v5";
 const ASSETS_TO_CACHE = ["/", "/offline.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        ASSETS_TO_CACHE.map(async (url) => {
+          try {
+            const response = await fetch(url);
+
+            if (response.ok) {
+              await cache.put(url, response);
+            } else {
+              console.warn(`Cache dilewati: ${url} (${response.status})`);
+            }
+          } catch (error) {
+            console.warn(`Gagal menyimpan cache: ${url}`, error);
+          }
+        })
+      );
+    })
   );
 
   self.skipWaiting();
