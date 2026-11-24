@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const API_BASE_URL =
@@ -13,3 +14,23 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Interceptor untuk mengirim JWT secara otomatis
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export default api;
