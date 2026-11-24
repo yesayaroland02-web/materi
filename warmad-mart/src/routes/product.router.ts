@@ -1,4 +1,6 @@
+
 import { Router } from "express";
+
 import {
   createProductHandler,
   getAllProductsHandler,
@@ -10,41 +12,46 @@ import {
 
 import { createProductSchema } from "../schemas/product.schema.js";
 import { validate } from "../middlewares/validate.middleware.js";
+
 import {
   authenticate,
   authorizeRoles,
 } from "../middlewares/auth.middleware.js";
-import { Role } from "../generated/prisma/index.js";
 
+import { Role } from "../generated/prisma/index.js";
 import { uploadSingleImage } from "../middlewares/upload.middleware.js";
 
 const productRouter = Router();
 
-// public routes (bisa diakses siapa aja)
+// PUBLIC ROUTES
 productRouter.get("/", getAllProductsHandler);
 productRouter.get("/:id", getProductByIdHandler);
 
-// admin only routes (membutuhkan login dan role ADMIN)
+// ADMIN ROUTES
 productRouter.post(
   "/",
   authenticate,
   authorizeRoles(Role.ADMIN),
-  uploadSingleImage, // middleware multer ditempatkan sebelum validasi/handler
+  uploadSingleImage,
   validate(createProductSchema),
   createProductHandler,
 );
+
 productRouter.put(
   "/:id",
   authenticate,
   authorizeRoles(Role.ADMIN),
+  uploadSingleImage,
   updateProductHandler,
 );
+
 productRouter.delete(
   "/:id/soft-delete",
   authenticate,
   authorizeRoles(Role.ADMIN),
   deleteProductHandler,
 );
+
 productRouter.put(
   "/:id/restore",
   authenticate,

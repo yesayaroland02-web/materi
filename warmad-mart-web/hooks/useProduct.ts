@@ -1,32 +1,31 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { api } from "@/config/axios";
+
 import {
   Product,
   CreateProductPayload,
   UpdateProductPayload,
 } from "@/interfaces/product";
 
+interface ProductApiResponse {
+  message?: string;
+  data?: Product | Product[];
+  products?: Product[];
+}
+
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
- 
-
-async function getProducts() {
-  console.log("1. getProducts() dipanggil");
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    console.log("2. Mengirim request ke API:", api.defaults.baseURL);
-
-    const response = await api.get("/api/products/");
-
-    console.log("3. Products API response:", response.data);
+  const refreshProducts = useCallback(async () => {
+    const response = await api.get<ProductApiResponse | Product[]>(
+      "/api/products/",
+    );
 
     const result = response.data;
+
     const productList = Array.isArray(result)
       ? result
       : Array.isArray(result?.data)
@@ -36,20 +35,28 @@ async function getProducts() {
           : [];
 
     setProducts(productList);
-  } catch (error: any) {
-    console.error("4. Gagal mengambil produk:", error);
-    setError(
-      error.response?.data?.message ||
-      error.message ||
-      "Gagal fetching produk"
-    );
-  } finally {
-    setLoading(false);
+  }, []);
+
+  async function getProducts() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await refreshProducts();
+    } catch (err: any) {
+      console.error("Gagal mengambil produk:", err);
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal mengambil produk",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
-
-  // 1. Tambahkan parameter imageFile opsional
+  // CREATE PRODUCT
   async function createProduct(
     payload: CreateProductPayload,
     imageFile?: File,
@@ -58,41 +65,42 @@ async function getProducts() {
     setError(null);
 
     try {
-      // 2. Gunakan FormData karena mengirim file dan data teks sekaligus
       const formData = new FormData();
+
       formData.append("title", payload.title);
       formData.append("category", payload.category);
-      if (payload.description)
-        formData.append("description", payload.description);
+      formData.append("description", payload.description || "");
       formData.append("price", String(payload.price));
       formData.append("stock", String(payload.stock));
 
-      // 3. Masukkan file gambar jika ada
-     
-      // Upload gambar harus menggunakan field "imageUrl"
       if (imageFile) {
         formData.append("imageUrl", imageFile);
       }
 
-      const response = await api.post<Product>(
+      const response = await api.post<ProductApiResponse>(
         "/api/products/",
-        formData
+        formData,
       );
 
-      await getProducts();
-      return response.data;
-    } catch (error: any) {
+      await refreshProducts();
+
+      return response.data.data ?? response.data;
+    } catch (err: any) {
+      console.error("Gagal menambahkan produk:", err);
+
       setError(
-        error.response?.data?.message || "Gagal menambahkan produk"
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal menambahkan produk",
       );
+
+      return null;
     } finally {
       setLoading(false);
     }
   }
 
-
-  // 4. Tambahkan parameter imageFile opsional untuk update
- 
+  // UPDATE PRODUCT
   async function updateProduct(
     payload: UpdateProductPayload,
     id: string,
@@ -104,52 +112,76 @@ async function getProducts() {
     try {
       const formData = new FormData();
 
-      if (payload.title !== undefined)
+      if (payload.title !== undefined) {
         formData.append("title", payload.title);
+      }
 
-      if (payload.category !== undefined)
+      if (payload.category !== undefined) {
         formData.append("category", payload.category);
+      }
 
-      if (payload.description !== undefined)
+      if (payload.description !== undefined) {
         formData.append("description", payload.description);
+      }
 
-      if (payload.price !== undefined)
+      if (payload.price !== undefined) {
         formData.append("price", String(payload.price));
+      }
 
-      if (payload.stock !== undefined)
+      if (payload.stock !== undefined) {
         formData.append("stock", String(payload.stock));
+      }
 
       if (imageFile) {
         formData.append("imageUrl", imageFile);
       }
 
-      const response = await api.put<Product>(
+      const response = await api.put<ProductApiResponse>(
         `/api/products/${id}`,
-        formData
+        formData,
       );
 
-      await getProducts();
-      return response.data;
-    } catch (error: any) {
+      await refreshProducts();
+
+      return response.data.data ?? response.data;
+    } catch (err: any) {
+      console.error("Gagal mengubah produk:", err);
+
       setError(
-        error.response?.data?.message || "Gagal mengubah produk"
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal mengubah produk",
       );
+
+      return null;
     } finally {
       setLoading(false);
     }
   }
 
-
+  // SOFT DELETE
   async function softDelete(id: string) {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await api.delete(`/api/products/${id}/soft-delete`);
-      await getProducts();
+      const response = await api.delete(
+        `/api/products/${id}/soft-delete`,
+      );
+
+      await refreshProducts();
+
       return response.data;
-    } catch (error: any) {
-      setError(error.response?.data?.messagge || "Gagal menghapus produk");
+    } catch (err: any) {
+      console.error("Gagal menghapus produk:", err);
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal menghapus produk",
+      );
+
+      return null;
     } finally {
       setLoading(false);
     }
@@ -157,7 +189,14 @@ async function getProducts() {
 
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [refreshProducts]);
 
-  return { products, error, loading, createProduct, updateProduct, softDelete };
+  return {
+    products,
+    error,
+    loading,
+    createProduct,
+    updateProduct,
+    softDelete,
+  };
 }

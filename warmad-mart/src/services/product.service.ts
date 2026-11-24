@@ -1,3 +1,4 @@
+
 import prisma from "../config/db.js";
 import { redis } from "../config/redis.js";
 import { enqueueLowStockNotification } from "../utils/queues/stockQueue.js";
@@ -15,7 +16,7 @@ export interface CreateProductInput {
 }
 
 /**
- * Interface untuk data input pembaharuan produk (semua field bersifat opsional)
+ * Interface untuk data input pembaharuan produk
  */
 export interface UpdateProductInput {
   title?: string;
@@ -26,6 +27,7 @@ export interface UpdateProductInput {
   price?: number;
 }
 
+// CREATE PRODUCT
 export async function createProduct(data: CreateProductInput) {
   const product = await prisma.product.create({
     data: {
@@ -38,38 +40,39 @@ export async function createProduct(data: CreateProductInput) {
     },
   });
 
+  // Notifikasi jika stok rendah
   if (product.stock <= 5) {
-    await enqueueLowStockNotification(product.title, product.stock);
+    await enqueueLowStockNotification(
+      product.title,
+      product.stock,
+    );
   }
 
-  // hapus/invalisasi cache: setiap ada produk baru, cache getAllProducts wajib dihapus
-  // notes: harus dilakukan juga di fitur Update
-  // supaya data terbaru langsung muncul saat user melakukan get all berikutnya
+  // Invalidate Redis cache
   await redis.del("products:all");
+
   return product;
 }
 
+// GET ALL PRODUCTS
 export async function getAllProducts() {
-  const startTime = performance.now(); // mulai hitung waktu
+  const startTime = performance.now();
   const cacheKey = "products:all";
 
-  // cek apakah data sudah ada di Redis Cache
+  // Periksa Redis cache
   const cachedData = await redis.get(cacheKey);
 
   if (cachedData) {
-    // untuk mendefinisikan berapa lama/cepat redis ini bekerja
     const endTime = performance.now();
-    const responseTime = `${(endTime - startTime).toFixed(2)} ms`;
 
-    // kembalikan data dari cache beserta metadata bukti
     return {
       source: "cache (Redis)",
-      responseTime,
+      responseTime: `${(endTime - startTime).toFixed(2)} ms`,
       data: cachedData,
     };
   }
 
-  // jika tidak ada di cache (Cache Miss), ambil dari Database
+  // Ambil produk dari database
   const products = await prisma.product.findMany({
     where: {
       deletedAt: null,
@@ -79,19 +82,21 @@ export async function getAllProducts() {
     },
   });
 
-  // simpan data ke redis cache dengan masa aktif (TTL) misal 60 detik
-  await redis.set(cacheKey, products, { ex: 60 });
+  // Simpan hasil ke Redis selama 60 detik
+  await redis.set(cacheKey, products, {
+    ex: 60,
+  });
 
   const endTime = performance.now();
-  const responseTime = `${(endTime - startTime).toFixed(2)} ms`;
 
   return {
     source: "database",
-    responseTime,
+    responseTime: `${(endTime - startTime).toFixed(2)} ms`,
     data: products,
   };
 }
 
+// GET PRODUCT BY ID
 export async function getProductById(id: string) {
   return await prisma.product.findFirst({
     where: {
@@ -101,27 +106,54 @@ export async function getProductById(id: string) {
   });
 }
 
-export async function updateProduct(id: string, data: UpdateProductInput) {
-  return await prisma.product.update({
-    where: { id },
+// UPDATE PRODUCT
+export async function updateProduct(
+  id: string,
+  data: UpdateProductInput,
+) {
+  const product = await prisma.product.update({
+    where: {
+      id,
+    },
     data,
   });
+
+  // Invalidate Redis cache
+  await redis.del("products:all");
+
+  return product;
 }
 
+// SOFT DELETE PRODUCT
 export async function softDeleteProduct(id: string) {
-  return await prisma.product.update({
-    where: { id },
+  const product = await prisma.product.update({
+    where: {
+      id,
+    },
     data: {
       deletedAt: new Date(),
     },
   });
+
+  // Invalidate Redis cache
+  await redis.del("products:all");
+
+  return product;
 }
 
+// RESTORE PRODUCT
 export async function restoreProduct(id: string) {
-  return await prisma.product.update({
-    where: { id },
+  const product = await prisma.product.update({
+    where: {
+      id,
+    },
     data: {
       deletedAt: null,
     },
   });
+
+  // Invalidate Redis cache
+  await redis.del("products:all");
+
+  return product;
 }

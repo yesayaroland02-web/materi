@@ -3,17 +3,23 @@ import type { Request } from "express";
 import multer from "multer";
 import path from "path";
 
-// Simpan file di memori sebagai Buffer
 const storage = multer.memoryStorage();
 
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"];
-const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+];
 
-// Filter file hanya untuk gambar JPG dan PNG
+const ALLOWED_EXTENSIONS = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+];
+
 function fileFilter(
   req: Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback,
+  cb: multer.FileFilterCallback
 ) {
   const ext = path.extname(file.originalname).toLowerCase();
 
@@ -27,17 +33,14 @@ function fileFilter(
   }
 }
 
-
 export const uploadSingleImage = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // Maksimal 5 MB
+    fileSize: 5 * 1024 * 1024,
   },
 }).single("imageUrl");
 
-
-// Tipe Request yang mendukung file upload Multer
 export type MulterRequest = Request & {
   file?: Express.Multer.File;
   files?:
