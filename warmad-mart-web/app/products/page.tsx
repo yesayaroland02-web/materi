@@ -1,8 +1,10 @@
 
 import type { Metadata } from "next";
-import { api } from "@/config/axios";
 import { Product } from "@/interfaces/product";
 import AuthGuard from "@/components/AuthGuard";
+
+// Memaksa Next.js menggunakan dynamic rendering
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Katalog Produk Lengkap",
@@ -35,27 +37,28 @@ export const metadata: Metadata = {
 };
 
 // Mengambil produk dari backend
-
-
-
 async function getProducts(): Promise<Product[]> {
   try {
     const baseURL =
       process.env.WARMAD_INTERNAL_API_URL ||
       process.env.NEXT_PUBLIC_WARMAD_PROD_URL ||
+      process.env.NEXT_PUBLIC_WARMAD_DEV_URL ||
       "http://localhost:8000";
 
     const response = await fetch(
       `${baseURL}/api/products/`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+      }
     );
 
     if (!response.ok) {
       console.error(
         "API produk gagal:",
         response.status,
-        await response.text(),
+        await response.text()
       );
+
       return [];
     }
 
@@ -68,15 +71,14 @@ async function getProducts(): Promise<Product[]> {
     if (Array.isArray(result?.products)) return result.products;
 
     console.error("Format respons tidak dikenali:", result);
+
     return [];
   } catch (error) {
     console.error("Gagal mengambil data produk:", error);
+
     return [];
   }
 }
-
-
-
 
 export default async function Products() {
   const products = await getProducts();
@@ -174,9 +176,7 @@ export default async function Products() {
                     <div className="mt-auto border-t border-gray-100 pt-4">
                       <p className="mb-3 text-lg font-bold text-gray-900">
                         Rp{" "}
-                        {Number(product.price).toLocaleString(
-                          "id-ID",
-                        )}
+                        {Number(product.price).toLocaleString("id-ID")}
                       </p>
 
                       <div className="flex items-center justify-between">
@@ -207,4 +207,3 @@ export default async function Products() {
     </AuthGuard>
   );
 }
-
