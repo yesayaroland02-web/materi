@@ -1,9 +1,25 @@
-import React from "react";
 
-export default function Home() {
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+      router.replace("/products");
+    } else {
+      router.replace("/auth");
+    }
+  }, [router]);
+
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <h1>Home</h1>
+    <div className="flex min-h-screen items-center justify-center bg-[#0B0B0D] text-white">
+      Memeriksa status login...
     </div>
   );
 }
